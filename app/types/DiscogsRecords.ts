@@ -20,7 +20,7 @@ interface BasicInformation {
   resource_url: string;
   uri: string;
   formats: Formats[];
-  labels: string[];
+  labels: Label[];
 }
 
 interface Formats {
@@ -28,6 +28,15 @@ interface Formats {
   name: string;
   qty: string;
   text: string;
+}
+
+interface Label {
+  name: string;
+  catno: string;
+  entity_type: string;
+  entity_type_name: string;
+  id: number;
+  resource_url: string;
 }
 
 export interface Artist {
