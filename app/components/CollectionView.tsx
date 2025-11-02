@@ -1,45 +1,73 @@
 'use client';
 
-import { useState } from 'react';
-import AlgoliaSearch from './AlgoliaSearch';
+import { useState, lazy, Suspense, memo, useCallback } from 'react';
 import {Search} from "lucide-react";
 import {Button} from "@/components/ui/button";
+
+// Lazy load AlgoliaSearch component for better initial bundle size
+const AlgoliaSearch = lazy(() => import('./AlgoliaSearch'));
 
 interface CollectionViewProps {
   readonly folderId: number;
   readonly regularView: React.ReactNode;
 }
 
-export default function CollectionView({ folderId, regularView }: CollectionViewProps) {
+// Loading skeleton for search component
+function SearchLoadingSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="mb-6 bg-gray-200 rounded-lg h-16" />
+      <div className="grid grid-cols-3 gap-16">
+        {[...Array(21)].map((_, i) => (
+          <div key={i} className="bg-gray-200 rounded-lg h-96" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Memoize the component to prevent unnecessary re-renders
+function CollectionView({ folderId, regularView }: CollectionViewProps) {
   const [searchMode, setSearchMode] = useState(false);
 
   // Only show search in "All" folder (id = 0)
   const canSearch = folderId === 0;
+
+  // Memoize callbacks to prevent re-creation on every render
+  const enableSearchMode = useCallback(() => setSearchMode(true), []);
+  const disableSearchMode = useCallback(() => setSearchMode(false), []);
 
   return (
     <div>
       {canSearch && (
         <div className="mb-6 flex items-center gap-4">
           <Button
-            onClick={() => setSearchMode(false)}
+            onClick={disableSearchMode}
             variant={searchMode ? 'outline' : 'default'}
+            aria-label="Switch to browse mode"
           >
             Browse All
           </Button>
           <Button
-            onClick={() => setSearchMode(true)}
+            onClick={enableSearchMode}
             variant={searchMode ? 'default' : 'outline'}
+            aria-label="Switch to search mode"
           >
-            <Search /> Search Collection
+            <Search aria-hidden="true" /> Search Collection
           </Button>
         </div>
       )}
 
       {searchMode && canSearch ? (
-        <AlgoliaSearch />
+        <Suspense fallback={<SearchLoadingSkeleton />}>
+          <AlgoliaSearch />
+        </Suspense>
       ) : (
         regularView
       )}
     </div>
   );
 }
+
+// Export memoized version to prevent re-renders when parent updates
+export default memo(CollectionView);

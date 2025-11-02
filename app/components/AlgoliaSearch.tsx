@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { liteClient as algoliasearch } from 'algoliasearch/lite';
 import { InstantSearch, SearchBox, InfiniteHits, Configure, Stats } from 'react-instantsearch';
 import Image from 'next/image';
@@ -24,7 +25,8 @@ interface HitProps {
   };
 }
 
-function Hit({ hit }: HitProps) {
+// Memoize Hit component to prevent re-renders of unchanged items
+const Hit = memo(function Hit({ hit }: HitProps) {
   const hasImage = hit.coverImage && hit.coverImage !== '';
   
   return (
@@ -33,9 +35,14 @@ function Hit({ hit }: HitProps) {
         {hasImage ? (
           <Image
             src={hit.coverImage}
-            alt={hit.title}
-            width={300}
-            height={300}
+            alt={`${hit.artist} - ${hit.title}`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            loading="lazy"
+            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
+            className="object-cover"
           />
         ) : (
           <svg
@@ -45,6 +52,7 @@ function Hit({ hit }: HitProps) {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className="text-gray-300"
+            aria-label="No album artwork available"
           >
             <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="2" />
             <circle cx="50" cy="50" r="35" stroke="currentColor" strokeWidth="1" />
@@ -61,20 +69,21 @@ function Hit({ hit }: HitProps) {
       <h2 className="text-lg font-bold">
         {hit.artist} - {hit.title}
       </h2>
-      <p>{hit.year}</p>
-      <p>{hit.styles.join(', ')}</p>
+      <p className="text-sm text-gray-600">{hit.year}</p>
+      <p className="text-sm text-gray-600">{hit.styles.join(', ')}</p>
       <p>
         <Link 
-          className="text-blue-500" 
+          className="text-blue-500 hover:text-blue-700 transition-colors" 
           href={hit.uri} 
           target="_blank"
+          rel="noopener noreferrer"
         >
           View on Discogs
         </Link>
       </p>
     </div>
   );
-}
+});
 
 export default function AlgoliaSearch() {
   return (

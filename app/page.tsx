@@ -3,9 +3,38 @@ import Link from "next/link";
 import { getFolders, getRecords } from "./lib/discogs-api";
 import CollectionView from "./components/CollectionView";
 import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
 
 interface PageProps {
   searchParams: Promise<{ page?: string; folder?: string }>;
+}
+
+// Generate dynamic metadata based on page and folder
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const folderId = Number(params.folder) || 0;
+  
+  const folders = await getFolders();
+  const currentFolder = folders.find((f) => f.id === folderId) || folders.find((f) => f.id === 0);
+  
+  const folderName = currentFolder?.name || 'All Records';
+  const title = currentPage > 1 
+    ? `${folderName} - Page ${currentPage}`
+    : folderName;
+  
+  const recordCount = currentFolder?.count || 'my';
+  const pageInfo = currentPage > 1 ? ` - Page ${currentPage}` : '';
+  const description = `Browse ${recordCount} vinyl records${pageInfo}`;
+  
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+    },
+  };
 }
 
 export default async function Home({ searchParams }: Readonly<PageProps>) {
@@ -73,10 +102,13 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
           regularView={
             <>
               <div className="grid grid-cols-3 gap-12">
-                {records.map((record) => {
+                {records.map((record, index) => {
                   const hasImage =
                     record.basic_information.cover_image &&
                     record.basic_information.cover_image !== "";
+                  
+                  // Only prioritize first 6 images (above the fold)
+                  const shouldPriority = index < 6 && currentPage === 1;
 
                   return (
                     <div key={record.instance_id} className="bg-card-foreground rounded-lg p-8 flex flex-col gap-2">
@@ -84,10 +116,15 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
                         {hasImage ? (
                           <Image
                             src={record.basic_information.cover_image}
-                            alt={record.basic_information.title}
-                            width={300}
-                            height={300}
-                            priority
+                            alt={`${record.basic_information.artists[0].name} - ${record.basic_information.title}`}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            priority={shouldPriority}
+                            loading={shouldPriority ? "eager" : "lazy"}
+                            quality={85}
+                            placeholder="blur"
+                            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
+                            className="object-cover"
                           />
                         ) : (
                           <svg
@@ -97,6 +134,7 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg"
                             className="text-gray-300"
+                            aria-label="No album artwork available"
                           >
                             <circle
                               cx="50"
@@ -132,17 +170,18 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
                         {record.basic_information.artists[0].name} -{" "}
                         {record.basic_information.title}
                       </h2>
-                      <p>{record.basic_information.year}</p>
-                      <p>{record.basic_information.styles.join(", ")}</p>
+                      <p className="text-sm text-gray-600">{record.basic_information.year}</p>
+                      <p className="text-sm text-gray-600">{record.basic_information.styles.join(", ")}</p>
                       <p>
                         <Link
-                          className="text-blue-500"
+                          className="text-blue-500 hover:text-blue-700 transition-colors"
                           href={
                             record.uri ||
                             record.basic_information.uri ||
                             `https://www.discogs.com/release/${record.basic_information.id}`
                           }
                           target="_blank"
+                          rel="noopener noreferrer"
                         >
                           View on Discogs
                         </Link>

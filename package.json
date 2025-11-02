@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "index-algolia": "tsx scripts/index-algolia.ts"
+    "index-algolia": "tsx scripts/index-algolia.ts",
+    "analyze": "ANALYZE=true next build",
+    "build:prod": "NODE_ENV=production next build",
+    "type-check": "tsc --noEmit",
+    "perf:build": "next build && echo 'Build complete. Check .next/analyze for bundle analysis.'"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
@@ -22,7 +26,8 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-instantsearch": "^7.17.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "web-vitals": "^4.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
