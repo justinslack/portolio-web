@@ -20,6 +20,7 @@ interface BasicInformation {
   resource_url: string;
   uri: string;
   formats: Formats[];
+  labels: string[];
 }
 
 interface Formats {

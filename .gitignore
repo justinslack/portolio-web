@@ -43,8 +43,8 @@ next-env.d.ts
 !readme.md
 generate-oauth-token.js
 ENV_TEMPLATE.txt
-.sync-to-algolia.ts
-index-algolia.ts
+scripts/sync-to-algolia.ts
+scripts/index-algolia.ts
 
 
 # Local Netlify folder
