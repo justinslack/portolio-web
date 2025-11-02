@@ -4,6 +4,10 @@
   command = "pnpm build"
   publish = ".next"
 
+# Note: NEXT_PUBLIC_* variables are intentionally public and bundled into client-side JS
+# If deployment fails due to "exposed secrets", mark these as non-sensitive in Netlify dashboard:
+# Site settings → Environment variables → Mark as non-sensitive
+
 # Install Next.js plugin for Netlify
 [[plugins]]
   package = "@netlify/plugin-nextjs"
