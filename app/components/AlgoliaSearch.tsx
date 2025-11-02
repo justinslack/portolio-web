@@ -22,6 +22,7 @@ interface HitProps {
     readonly coverImage: string;
     readonly thumb: string;
     readonly uri: string;
+    readonly labels: string[];
   };
 }
 
@@ -69,6 +70,11 @@ const Hit = memo(function Hit({ hit }: HitProps) {
       <h2 className="text-lg font-bold">
         {hit.artist} - {hit.title}
       </h2>
+      {hit.labels && hit.labels.length > 0 && (
+        <p className="text-sm font-medium text-blue-600">
+          {hit.labels[0]}
+        </p>
+      )}
       <p className="text-sm text-gray-600">{hit.year}</p>
       <p className="text-sm text-gray-600">{hit.styles.join(', ')}</p>
       <p>

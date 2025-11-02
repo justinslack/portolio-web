@@ -177,6 +177,12 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
                         {record.basic_information.artists[0].name} -{" "}
                         {record.basic_information.title}
                       </h2>
+                      {record.basic_information.labels && record.basic_information.labels.length > 0 && (
+                        <p className="text-sm font-medium text-blue-600">
+                          {record.basic_information.labels[0].name}
+                          {record.basic_information.labels[0].catno && ` · ${record.basic_information.labels[0].catno}`}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-600">{record.basic_information.year}</p>
                       <p className="text-sm text-gray-600">{record.basic_information.styles.join(", ")}</p>
                       <p>
