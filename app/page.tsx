@@ -63,6 +63,13 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
   return (
     <div className="bg-gray-100">
       <main className="m-auto max-w-7xl p-8">
+        {/* Navigation */}
+        <div className="mb-8">
+          <Button variant="outline" asChild>
+            <Link href="/lists">View My Lists →</Link>
+          </Button>
+        </div>
+
         {/* Folder Filter */}
         {folders.length > 0 && (
           <div className="mb-8">
@@ -101,7 +108,7 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
           folderId={folderId}
           regularView={
             <>
-              <div className="grid md:grid-cols-3 gap-12">
+              <div className="grid md:grid-cols-3 gap-8">
                 {records.map((record, index) => {
                   const hasImage =
                     record.basic_information.cover_image &&
@@ -111,8 +118,8 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
                   const shouldPriority = index < 6 && currentPage === 1;
 
                   return (
-                    <div key={record.instance_id} className="bg-card-foreground rounded-lg p-8 flex flex-col gap-2">
-                      <div className="relative aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <div key={record.instance_id} className="bg-white rounded-lg p-6 flex flex-col gap-3 shadow-sm">
+                      <div className="relative aspect-square bg-gray-100 flex items-center justify-center overflow-hidden rounded-md">
                         {hasImage ? (
                           <Image
                             src={record.basic_information.cover_image}

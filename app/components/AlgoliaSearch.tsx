@@ -30,8 +30,8 @@ const Hit = memo(function Hit({ hit }: HitProps) {
   const hasImage = hit.coverImage && hit.coverImage !== '';
   
   return (
-    <div className="bg-card-foreground rounded-lg p-8 flex flex-col gap-2">
-      <div className="relative aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+    <div className="bg-white rounded-lg p-6 flex flex-col gap-3 shadow-sm">
+      <div className="relative aspect-square bg-gray-100 flex items-center justify-center overflow-hidden rounded-md">
         {hasImage ? (
           <Image
             src={hit.coverImage}
@@ -88,7 +88,7 @@ const Hit = memo(function Hit({ hit }: HitProps) {
 export default function AlgoliaSearch() {
   return (
     <InstantSearch searchClient={searchClient} indexName="discogs_collection">
-      <div className="mb-6 bg-card-foreground rounded-lg p-8">
+      <div className="mb-6 bg-white rounded-lg p-6 shadow-sm">
         <SearchBox
           placeholder="Search collection by artist, title, genre, style, etc..."
           classNames={{
@@ -119,7 +119,7 @@ export default function AlgoliaSearch() {
         hitComponent={Hit}
         classNames={{
           root: '',
-          list: 'grid md:grid-cols-3 gap-16',
+          list: 'grid md:grid-cols-3 gap-8',
           item: '',
           loadMore: 'mt-8 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer mx-auto block',
           disabledLoadMore: 'mt-8 px-6 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed mx-auto block'

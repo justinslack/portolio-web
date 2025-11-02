@@ -1,6 +1,7 @@
 import DiscogsRecord from "../types/DiscogsRecords";
 import DiscogsResponse from "../types/DiscogsResponse";
 import { DiscogsFolder, DiscogsFoldersResponse } from "../types/DiscogsFolder";
+import { DiscogsListsResponse, DiscogsListDetailsResponse } from "../types/DiscogsList";
 import { discogsAuthFetch } from "./discogs-auth";
 import { unstable_cache } from 'next/cache';
 
@@ -79,5 +80,68 @@ export const getRecords = unstable_cache(
   ['discogs-records'],
   {
     revalidate: 600, // 10 minutes
+  }
+);
+
+// Lists don't change as frequently, cache for 30 minutes
+export const getLists = unstable_cache(
+  async (): Promise<DiscogsListsResponse['lists']> => {
+    try {
+      const response = await discogsAuthFetch(
+        'https://api.discogs.com/users/justinslack/lists',
+        {
+          next: { 
+            revalidate: 1800, // 30 minutes
+            tags: ['discogs-lists']
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch lists');
+      }
+
+      const data = (await response.json()) as DiscogsListsResponse;
+      return data.lists || [];
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+      return [];
+    }
+  },
+  ['discogs-lists'],
+  {
+    revalidate: 1800, // 30 minutes
+    tags: ['discogs-lists']
+  }
+);
+
+// Get details for a specific list
+export const getListDetails = unstable_cache(
+  async (listId: string): Promise<DiscogsListDetailsResponse | null> => {
+    try {
+      const response = await discogsAuthFetch(
+        `https://api.discogs.com/lists/${listId}`,
+        {
+          next: { 
+            revalidate: 1800, // 30 minutes
+            tags: [`discogs-list-${listId}`]
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch list details');
+      }
+
+      const data = (await response.json()) as DiscogsListDetailsResponse;
+      return data;
+    } catch (error) {
+      console.error('Error fetching list details:', error);
+      return null;
+    }
+  },
+  ['discogs-list-details'],
+  {
+    revalidate: 1800, // 30 minutes
   }
 );
