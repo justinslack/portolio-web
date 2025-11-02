@@ -122,3 +122,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Syntax highlighting enhancements for blog posts */
+@layer components {
+  .prose pre {
+    @apply my-6 overflow-x-auto rounded-lg border border-gray-700 p-4;
+    background-color: #22272e;
+  }
+  
+  .prose pre code {
+    @apply bg-transparent p-0 text-sm leading-relaxed;
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+  
+  .prose code:not(pre code) {
+    @apply rounded bg-gray-100 px-1.5 py-0.5 text-sm font-medium text-gray-800;
+  }
+  
+  .prose .hljs {
+    @apply bg-transparent;
+  }
+}

@@ -1,0 +1,9 @@
+# Blog Images Directory
+
+Place your blog post images here. Reference them in your markdown frontmatter like:
+
+```
+thumbnail: /images/blog/your-image-thumbnail.jpg
+coverImage: /images/blog/your-image-cover.jpg
+```
+

@@ -35,6 +35,12 @@ export default function Home() {
                 View My Lists
               </Link>
             </Button>
+
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/blog">
+                Read Blog
+              </Link>
+            </Button>
           </div>
         </div>
       </main>
