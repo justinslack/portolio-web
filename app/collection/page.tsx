@@ -1,0 +1,238 @@
+import Image from "next/image";
+import Link from "next/link";
+import { getFolders, getRecords } from "../lib/discogs-api";
+import CollectionView from "../components/CollectionView";
+import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+
+interface PageProps {
+  searchParams: Promise<{ page?: string; folder?: string }>;
+}
+
+// Generate dynamic metadata based on page and folder
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const folderId = Number(params.folder) || 0;
+  
+  const folders = await getFolders();
+  const currentFolder = folders.find((f) => f.id === folderId) || folders.find((f) => f.id === 0);
+  
+  const folderName = currentFolder?.name || 'All Records';
+  const title = currentPage > 1 
+    ? `${folderName} - Page ${currentPage}`
+    : folderName;
+  
+  const recordCount = currentFolder?.count || 'my';
+  const pageInfo = currentPage > 1 ? ` - Page ${currentPage}` : '';
+  const description = `Browse ${recordCount} vinyl records${pageInfo}`;
+  
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+    },
+  };
+}
+
+export default async function Home({ searchParams }: Readonly<PageProps>) {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const folderId = Number(params.folder) || 0;
+
+  const [folders, { records, totalPages }] = await Promise.all([
+    getFolders(),
+    getRecords(currentPage, folderId),
+  ]);
+
+  const currentFolder =
+    folders.find((f) => f.id === folderId) || folders.find((f) => f.id === 0);
+
+  // Helper function to build pagination URLs
+  const buildPageUrl = (page: number) => {
+    const urlParams = new URLSearchParams();
+    urlParams.set("page", page.toString());
+    if (folderId !== 0) {
+      urlParams.set("folder", folderId.toString());
+    }
+    return `?${urlParams.toString()}`;
+  };
+
+  return (
+    <div className="bg-gray-100">
+      <main className="m-auto max-w-7xl p-8">
+        {/* Navigation */}
+        <div className="mb-8 flex items-center gap-4">
+          <Button variant="outline" asChild>
+            <Link href="/">← Home</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/lists">View My Lists →</Link>
+          </Button>
+        </div>
+
+        {/* Folder Filter */}
+        {folders.length > 0 && (
+          <div className="mb-8">
+            <label
+              htmlFor="folder-select"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Filter by Folder ({folders.length} folders):
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {folders.map((folder) => (
+                <Button
+                  key={folder.id}
+                  variant={folderId === folder.id ? "default" : "outline"}
+                  asChild
+                >
+                  <Link href={`?folder=${folder.id}`}>
+                    {folder.name} 
+                    {/* <span className="text-gray-500 text-sm">({folder.count})</span> */}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Current Folder Info */}
+        {currentFolder && (
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold">{currentFolder.name}</h1>
+            <p className="text-gray-600">{currentFolder.count} records</p>
+          </div>
+        )}
+
+        <CollectionView
+          folderId={folderId}
+          regularView={
+            <>
+              <div className="grid md:grid-cols-3 gap-8">
+                {records.map((record, index) => {
+                  const hasImage =
+                    record.basic_information.cover_image &&
+                    record.basic_information.cover_image !== "";
+                  
+                  // Only prioritize first 6 images (above the fold)
+                  const shouldPriority = index < 6 && currentPage === 1;
+
+                  return (
+                    <div key={record.instance_id} className="bg-white rounded-lg p-6 flex flex-col gap-3 shadow-sm">
+                      <div className="relative aspect-square bg-gray-100 flex items-center justify-center overflow-hidden rounded-md">
+                        {hasImage ? (
+                          <Image
+                            src={record.basic_information.cover_image}
+                            alt={`${record.basic_information.artists[0].name} - ${record.basic_information.title}`}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            priority={shouldPriority}
+                            loading={shouldPriority ? "eager" : "lazy"}
+                            quality={85}
+                            placeholder="blur"
+                            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <svg
+                            width="150"
+                            height="150"
+                            viewBox="0 0 100 100"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="text-gray-300"
+                            aria-label="No album artwork available"
+                          >
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="48"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            />
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="35"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                            />
+                            <circle
+                              cx="50"
+                              cy="50"
+                              r="22"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                            />
+                            <circle cx="50" cy="50" r="8" fill="currentColor" />
+                            <path
+                              d="M50 2 L52 10 M50 2 L48 10"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                      <h2 className="text-lg font-bold">
+                        {record.basic_information.artists[0].name} -{" "}
+                        {record.basic_information.title}
+                      </h2>
+                      {record.basic_information.labels && record.basic_information.labels.length > 0 && (
+                        <p className="text-sm font-medium text-blue-600">
+                          {record.basic_information.labels[0].name}
+                          {record.basic_information.labels[0].catno && ` · ${record.basic_information.labels[0].catno}`}
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-600">{record.basic_information.year}</p>
+                      <p className="text-sm text-gray-600">{record.basic_information.styles.join(", ")}</p>
+                      <p>
+                        <Link
+                          className="text-blue-500 hover:text-blue-700 transition-colors"
+                          href={
+                            record.uri ||
+                            record.basic_information.uri ||
+                            `https://www.discogs.com/release/${record.basic_information.id}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          View on Discogs
+                        </Link>
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex justify-center items-center gap-4 mt-8 mb-8">
+                {currentPage > 1 && (
+                  <Button asChild>
+                    <Link href={buildPageUrl(currentPage - 1)}>
+                      Previous
+                    </Link>
+                  </Button>
+                )}
+
+                <span className="text-gray-700">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                {currentPage < totalPages && (
+                  <Button asChild>
+                    <Link href={buildPageUrl(currentPage + 1)}>
+                      Next
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </>
+          }
+        />
+      </main>
+    </div>
+  );
+}

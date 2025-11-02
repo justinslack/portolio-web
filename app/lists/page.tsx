@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getLists } from "../lib/discogs-api";
 import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
@@ -18,11 +19,13 @@ export default async function ListsPage() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <main className="m-auto max-w-7xl p-8">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Button variant="outline" asChild>
-              <Link href="/">← Back to Collection</Link>
+              <Link href="/">← Home</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/collection">← Collection</Link>
             </Button>
           </div>
           <h1 className="text-4xl font-bold mb-2">My Discogs Lists</h1>
@@ -30,8 +33,6 @@ export default async function ListsPage() {
             {lists.length} {lists.length === 1 ? "list" : "lists"}
           </p>
         </div>
-
-        {/* Lists Grid */}
         {lists.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {lists.map((list) => (
@@ -41,18 +42,17 @@ export default async function ListsPage() {
                 className="block bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col gap-3">
-                  {/* List Image */}
                   {list.image_url && (
                     <div className="relative aspect-video bg-gray-100 rounded-md overflow-hidden">
-                      <img
+                      <Image
                         src={list.image_url}
                         alt={list.name}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover"
                       />
                     </div>
                   )}
-
-                  {/* List Info */}
                   <div>
                     <h2 className="text-xl font-bold mb-1">{list.name}</h2>
                     {list.description && (
@@ -61,8 +61,6 @@ export default async function ListsPage() {
                       </p>
                     )}
                   </div>
-
-                  {/* List Metadata */}
                   <div className="flex items-center justify-between text-xs text-gray-500 mt-auto pt-3 border-t">
                     <span>{list.public ? "Public" : "Private"}</span>
                     <span>

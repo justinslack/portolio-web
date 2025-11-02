@@ -45,10 +45,13 @@ export default async function ListDetailsPage({ params }: PageProps) {
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Button variant="outline" asChild>
-              <Link href="/lists">← Back to Lists</Link>
+              <Link href="/">← Home</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/">← Home</Link>
+              <Link href="/collection">← Collection</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/lists">← Lists</Link>
             </Button>
           </div>
           
