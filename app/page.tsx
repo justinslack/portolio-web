@@ -101,7 +101,7 @@ export default async function Home({ searchParams }: Readonly<PageProps>) {
           folderId={folderId}
           regularView={
             <>
-              <div className="grid grid-cols-3 gap-12">
+              <div className="grid md:grid-cols-3 gap-12">
                 {records.map((record, index) => {
                   const hasImage =
                     record.basic_information.cover_image &&

@@ -119,7 +119,7 @@ export default function AlgoliaSearch() {
         hitComponent={Hit}
         classNames={{
           root: '',
-          list: 'grid grid-cols-3 gap-16',
+          list: 'grid md:grid-cols-3 gap-16',
           item: '',
           loadMore: 'mt-8 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer mx-auto block',
           disabledLoadMore: 'mt-8 px-6 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed mx-auto block'
