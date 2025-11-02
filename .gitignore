@@ -42,5 +42,7 @@ next-env.d.ts
 *.md
 !readme.md
 generate-oauth-token.js
-app/lib/discogs-auth.ts
 ENV_TEMPLATE.txt
+
+# Local Netlify folder
+.netlify
