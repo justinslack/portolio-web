@@ -3,8 +3,12 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getPostBySlug, getAllPosts } from '@/app/lib/markdown';
+import { getPostBySlug, getAllPosts } from '@/app/lib/markdown-renderer';
 import { BlogPostImage } from '@/app/components/BlogPostImage';
+import { markdownComponents } from '@/app/components/MarkdownComponents';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import type { Metadata } from 'next';
 import 'highlight.js/styles/github-dark-dimmed.css';
 
@@ -68,12 +72,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           alt={post.title}
           fill
           className="object-cover"
-          priority
+          preload
         />
       </div>
 
       {/* Content */}
-      <main className="mx-auto max-w-4xl px-8 py-12">
+      <main className="mx-auto max-w-4xl px-8 py-12 prose prose-lg prose-headings:font-bold prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/blog">
@@ -121,10 +125,15 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </header>
 
         {/* Article Content */}
-        <article
-          className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        <article className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={markdownComponents}
+          >
+            {post.content}
+          </ReactMarkdown>
+        </article>
 
         {/* Footer */}
         <footer className="mt-12 border-t pt-8">

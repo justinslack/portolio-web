@@ -96,7 +96,7 @@ export default function AlgoliaSearch() {
     <InstantSearch searchClient={searchClient} indexName="discogs_collection">
       <div className="mb-6 bg-white rounded-lg p-6 shadow-sm">
         <SearchBox
-          placeholder="Search collection by artist, title, genre, style, etc..."
+          placeholder="Search collection by artist, title, year, genre, style, etc..."
           classNames={{
             root: 'relative',
             form: 'relative',
@@ -123,6 +123,7 @@ export default function AlgoliaSearch() {
 
       <InfiniteHits
         hitComponent={Hit}
+        showPrevious={false}
         classNames={{
           root: '',
           list: 'grid md:grid-cols-3 gap-8',

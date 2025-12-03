@@ -3,6 +3,8 @@
 import { useState, lazy, Suspense, memo, useCallback } from 'react';
 import {Search} from "lucide-react";
 import {Button} from "@/components/ui/button";
+import Link from 'next/link';
+import Image from 'next/image';
 
 // Lazy load AlgoliaSearch component for better initial bundle size
 const AlgoliaSearch = lazy(() => import('./AlgoliaSearch'));
@@ -18,8 +20,8 @@ function SearchLoadingSkeleton() {
     <div className="animate-pulse">
       <div className="mb-6 bg-gray-200 rounded-lg h-16" />
       <div className="grid grid-cols-3 gap-16">
-        {[...Array(21)].map((_, i) => (
-          <div key={i} className="bg-gray-200 rounded-lg h-96" />
+        {Array.from({ length: 21 }, (_, i) => (
+          <div key={`skeleton-${i}`} className="bg-gray-200 rounded-lg h-96" />
         ))}
       </div>
     </div>
@@ -55,6 +57,12 @@ function CollectionView({ folderId, regularView }: CollectionViewProps) {
           >
             <Search aria-hidden="true" /> Search Collection
           </Button>
+          <div className="mb-4 flex justify-end gap-2 w-full items-center">
+            <span className="text-sm text-gray-600">Search powered by</span>
+            <Link href="https://www.algolia.com/" target="_blank" rel="noopener noreferrer">
+              <Image src="/Algolia-logo-blue.svg" alt="Algolia" width={80} height={20} />
+            </Link>
+          </div>
         </div>
       )}
 

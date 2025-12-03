@@ -37,10 +37,16 @@ export default function Home() {
             </Button>
 
             <Button size="lg" variant="outline" asChild>
+              <Link href="/shows">
+                Listen to Shows
+              </Link>
+            </Button>
+
+            {/* <Button size="lg" variant="outline" asChild>
               <Link href="/blog">
                 Read Blog
               </Link>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </main>

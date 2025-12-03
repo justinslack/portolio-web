@@ -145,3 +145,74 @@ export const getListDetails = unstable_cache(
     revalidate: 1800, // 30 minutes
   }
 );
+
+// Get full release details including videos
+// Cache for 1 hour as release details don't change often
+export const getReleaseDetails = unstable_cache(
+  async (releaseId: number): Promise<DiscogsReleaseDetails | null> => {
+    try {
+      const response = await discogsAuthFetch(
+        `https://api.discogs.com/releases/${releaseId}`,
+        {
+          next: { 
+            revalidate: 3600, // 1 hour
+            tags: [`discogs-release-${releaseId}`]
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch release details');
+      }
+
+      const data = (await response.json()) as DiscogsReleaseDetails;
+      return data;
+    } catch (error) {
+      console.error('Error fetching release details:', error);
+      return null;
+    }
+  },
+  ['discogs-release-details'],
+  {
+    revalidate: 3600, // 1 hour
+  }
+);
+
+// Interface for full release details
+export interface DiscogsReleaseDetails {
+  id: number;
+  title: string;
+  artists: Array<{
+    name: string;
+    anv: string;
+    join: string;
+    role: string;
+    tracks: string;
+    id: number;
+    resource_url: string;
+  }>;
+  videos?: Array<{
+    uri: string;
+    title: string;
+    description: string;
+    duration: number;
+    embed: boolean;
+  }>;
+  tracklist?: Array<{
+    position: string;
+    type_: string;
+    title: string;
+    duration: string;
+  }>;
+  year: number;
+  genres: string[];
+  styles: string[];
+  images: Array<{
+    type: string;
+    uri: string;
+    resource_url: string;
+    uri150: string;
+    width: number;
+    height: number;
+  }>;
+}
